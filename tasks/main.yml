@@ -1,0 +1,74 @@
+- name: Find VM running ludus_ghosts_server role
+  ansible.builtin.set_fact:
+    ludus_ghosts_server: "{{ ludus | search_roles('ludus_ghosts_server') }}"
+
+- name: Create temporary download directory
+  ansible.windows.win_file:
+    path: "{{ ghosts_temp_dir }}"
+    state: directory
+
+- name: Create installation directory
+  ansible.windows.win_file:
+    path: "{{ ghosts_install_dir }}"
+    state: directory
+
+- name: Download GHOSTS client zip file
+  ansible.windows.win_get_url:
+    url: "{{ ghosts_download_url }}"
+    dest: "{{ ghosts_zip_file }}"
+    timeout: 300
+  register: download_result
+
+- name: Extract GHOSTS client to installation directory
+  community.windows.win_unzip:
+    src: "{{ ghosts_zip_file }}"
+    dest: "{{ ghosts_install_dir }}"
+    creates: "{{ ghosts_executable }}"
+  register: extract_result
+
+- name: Rename Installation Path
+  ansible.windows.win_shell: Rename-Item (Get-ChildItem "C:\ludus\ghosts-client-*" -Directory).FullName "ghosts-client"
+
+- name: Verify GHOSTS executable exists
+  ansible.windows.win_stat:
+    path: "{{ ghosts_executable }}"
+  register: ghosts_exe_stat
+  failed_when: not ghosts_exe_stat.stat.exists
+
+- name: Check if configuration file exists
+  ansible.windows.win_stat:
+    path: "{{ ghosts_config_file }}"
+  register: config_file_stat
+
+- name: Update API URL in configuration file
+  community.windows.win_lineinfile:
+    path: "{{ ghosts_config_file }}"
+    regexp: "{{ ghosts_config_find }}"
+    line: "{{ ghosts_config_replace }}"
+    backup: yes
+  when: config_file_stat.stat.exists
+  register: api_config_update
+
+- name: Update DisableStartup in configuration file
+  community.windows.win_lineinfile:
+    path: "{{ ghosts_config_file }}"
+    regexp: '  "DisableStartup": false,'
+    line: '  "DisableStartup": true,'
+    backup: yes
+  when: config_file_stat.stat.exists
+  register: _startup_config_update
+
+- name: Add ghosts.exe to Windows startup registry
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+    name: GhostsClient
+    data: "c:\\ludus\\ghosts-client\\ghosts.exe"
+    type: string
+  register: startup_registry_result
+  failed_when: false
+
+- name: Clean up temporary files
+  ansible.windows.win_file:
+    path: "{{ ghosts_temp_dir }}"
+    state: absent
+  when: download_result is succeeded

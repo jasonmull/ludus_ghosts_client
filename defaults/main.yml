@@ -1,0 +1,14 @@
+
+# Download configuration
+ghosts_download_url: "https://cmu.box.com/shared/static/kqo5cl7f5f2v22xgud6o2fd26xrrwtpq.zip"
+ghosts_temp_dir: "{{ ansible_env.TEMP }}\\ghosts_install"
+ghosts_zip_file: "{{ ghosts_temp_dir }}\\ghosts_client.zip"
+
+# Installation paths
+ghosts_install_dir: "c:\\ludus\\"
+ghosts_config_file: "{{ ghosts_install_dir }}\\ghosts-client\\config\\application.json"
+ghosts_executable: "{{ ghosts_install_dir }}\\ghosts-client\\ghosts.exe"
+
+# Configuration replacement
+ghosts_config_find: '  "ApiRootUrl": "http://ghosts-api:5000/api",'
+ghosts_config_replace: '  "ApiRootUrl": "http://10.{{ range_second_octet }}.{{ ludus_ghosts_server.vlan }}.{{ ludus_ghosts_server.ip_last_octet }}:5000/api",'

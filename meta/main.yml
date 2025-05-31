@@ -1,0 +1,15 @@
+galaxy_info:
+  role_name: ludus_ghosts_client
+  author: jasonmull
+  description: A Ludus-compatible Ansible role to download, install, and configure the GHOSTS client application on Windows systems.
+  license: GPLv3
+  min_ansible_version: 2.9
+  platforms:
+    - name: Windows
+  galaxy_tags:
+    - windows
+    - security
+    - simulation
+    - ghosts
+
+dependencies: []
