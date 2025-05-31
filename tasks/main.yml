@@ -40,23 +40,16 @@
     path: "{{ ghosts_config_file }}"
   register: config_file_stat
 
-- name: Update API URL in configuration file
+- name: Update configuration values
   community.windows.win_lineinfile:
     path: "{{ ghosts_config_file }}"
-    regexp: "{{ ghosts_config_find }}"
-    line: "{{ ghosts_config_replace }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
     backup: yes
+  loop:
+    - { regexp: '{{ ghosts_config_find }}', line: '{{ ghosts_config_replace }}' }
+    - { regexp: '  "DisableStartup": false,', line: '  "DisableStartup": true,' }
   when: config_file_stat.stat.exists
-  register: api_config_update
-
-- name: Update DisableStartup in configuration file
-  community.windows.win_lineinfile:
-    path: "{{ ghosts_config_file }}"
-    regexp: '  "DisableStartup": false,'
-    line: '  "DisableStartup": true,'
-    backup: yes
-  when: config_file_stat.stat.exists
-  register: _startup_config_update
 
 - name: Add ghosts.exe to Windows startup registry
   ansible.windows.win_regedit:
