@@ -28,7 +28,7 @@ None.
 ```yaml
 ludus:
   - vm_name: "{{ range_id }}-WKS1"
-    hostname: "{{ range_id }}ORION-WKS1"
+    hostname: "{{ range_id }}-WKS1"
     template: win11-23h2-x64-enterprise-template
     vlan: 250
     ip_last_octet: 21
