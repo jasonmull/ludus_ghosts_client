@@ -18,7 +18,6 @@ A Ludus-compatible Ansible role to download, install, and configure the GHOSTS c
 ## Role Variables
 
 Default values (see `defaults/main.yml`) will join to the client to the GHOSTS server provisioned within the range config file.
-```
 
 ## Dependencies
 
