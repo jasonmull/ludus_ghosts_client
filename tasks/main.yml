@@ -1,3 +1,13 @@
+- name: Check if GHOSTS is already installed
+  ansible.windows.win_stat:
+    path: "{{ ghosts_executable }}"
+  register: ghosts_installed
+  changed_when: false
+
+- name: End if GHOSTS is already installed
+  ansible.builtin.meta: end_host
+  when: ghosts_installed.stat.exists
+
 - name: Find VM running ludus_ghosts_server role
   ansible.builtin.set_fact:
     ludus_ghosts_server: "{{ ludus | search_roles('ludus_ghosts_server') }}"
@@ -33,12 +43,8 @@
   ansible.windows.win_stat:
     path: "{{ ghosts_executable }}"
   register: ghosts_exe_stat
+  changed_when: false
   failed_when: not ghosts_exe_stat.stat.exists
-
-- name: Check if configuration file exists
-  ansible.windows.win_stat:
-    path: "{{ ghosts_config_file }}"
-  register: config_file_stat
 
 - name: Update configuration values
   community.windows.win_lineinfile:
@@ -49,7 +55,8 @@
   loop:
     - { regexp: '{{ ghosts_config_find }}', line: '{{ ghosts_config_replace }}' }
     - { regexp: '  "DisableStartup": false,', line: '  "DisableStartup": true,' }
-  when: config_file_stat.stat.exists
+  register: config_modification_result
+  failed_when: false
 
 - name: Add ghosts.exe to Windows startup registry
   ansible.windows.win_regedit:
