@@ -40,6 +40,14 @@ ludus:
       - jasonmull.ludus_ghosts_client
 ```
 
+## Custom Variable Options
+
+```yaml
+    role_vars:
+      # By default, the role sets the ApiRootUrl to the IP address of the GHOSTS server deployed in the range config.  If you'd like to set a static IP for the GHOSTS server, define the ghosts_config_replace value below to your GHOSTS server IP
+      ghosts_config_replace: '  "ApiRootUrl": "http://<GHOSTS SERVER IP>:5000/api",'
+```
+
 ## License
 
 GPLv3
@@ -47,3 +55,4 @@ GPLv3
 ## Author Information
 
 Role created by [jasonmull](https://github.com/jasonmull), for [Ludus](https://ludus.cloud/).
+
